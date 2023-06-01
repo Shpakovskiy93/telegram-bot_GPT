@@ -4,6 +4,7 @@ import { code } from "telegraf/format";
 import config from "config";
 import {ogg} from "./ogg.js";
 import {openai} from "./openai.js";
+import { textConverter } from './text.js'
 
 console.log(config.get('TEST_ENV'));
 
@@ -44,7 +45,10 @@ bot.on(message('voice'), async ctx => {
         const response = await openai.chat(ctx.session.messages);
         ctx.session.messages.push({role: openai.roles.ASSISTANT, content: response.content});
 
-        await ctx.reply(response.content);
+        // await ctx.reply(response.content);
+
+        const source = await textConverter.textToSpeach(response.content);
+        await ctx.sendAudio({source});
     } catch (error) {
         console.log('1', error.message);
     }
